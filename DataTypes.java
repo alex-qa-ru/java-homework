@@ -1,16 +1,18 @@
 import java.util.Scanner;
 
 public class DataTypes {
-    public static void main(String[] args){
-        Scanner scanner = new Scanner(System.in);
-        String[] tasks = new String[100];
-        boolean[] statusTasks = new boolean[100];
-        int counterTasks = 0;
-        String task = "";
+
+    private static int counterTasks = 0;
+    private static final int MAX_TASKS = 100;
+    private static String[] tasks = new String[MAX_TASKS];
+    private static boolean[] statusTasks = new boolean[MAX_TASKS];
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
 
         while (true) {
             showMenu();
-            if (!scanner.hasNextInt()){
+            if (!scanner.hasNextInt()) {
                 System.out.println("Введите число:");
                 scanner.nextLine();
                 continue;
@@ -18,11 +20,11 @@ public class DataTypes {
             int choise = scanner.nextInt();
             scanner.nextLine(); // Enter убираем оставшийся
 
-            switch (choise){
-                case 1 -> counterTasks = addTask(counterTasks, task, tasks, statusTasks, scanner);
-                case 2 -> showTasks(tasks, counterTasks, statusTasks);
-                case 3 -> counterTasks = deleteTask(scanner, counterTasks, tasks, statusTasks);
-                case 4 -> completeTask(scanner, counterTasks, statusTasks, tasks);
+            switch (choise) {
+                case 1 -> addTask();
+                case 2 -> showTasks();
+                case 3 -> deleteTask();
+                case 4 -> completeTask();
                 case 0 -> {
                     System.out.println("Завершение работы.");
                     return;
@@ -33,7 +35,7 @@ public class DataTypes {
         }
     }
 
-    public static void showMenu(){
+    private static void showMenu() {
         System.out.println(">>> Меню:\n" +
                 "1. Добавить задачу\n" +
                 "2. Показать все задачи\n" +
@@ -44,35 +46,29 @@ public class DataTypes {
                 "Выберите пункт меню:\n");
     }
 
-    public static void showTasks(String[] tasks, int counterTasks, boolean[] statusTasks){
-        {
-            if (counterTasks == 0){
-                System.out.println("Список задач пуст");
+    private static void showTasks() {
+        if (counterTasks == 0) {
+            System.out.println("Список задач пуст");
+            return;
+        }
+        System.out.println("Список задач:");
+        for (int i = 0; i < counterTasks; i++) {
+            if (statusTasks[i]) {
+                String statusTasksOne = "[X]";
+                System.out.println((i + 1) + ". " + statusTasksOne + " " + tasks[i]);
             } else {
-                System.out.println("Список задач:");
-                for (int i = 0; i < counterTasks; i++){
-                    if (statusTasks[i] == true){
-                        String statusTasksOne = "[X]";
-                        System.out.println((i + 1) + ". " + statusTasksOne + " " + tasks[i]);
-                    } else {
-                        String statusTasksOne = "[ ]";
-                        System.out.println((i + 1) + ". " + statusTasksOne + " " + tasks[i]);
-                    }
-                }
+                String statusTasksOne = "[ ]";
+                System.out.println((i + 1) + ". " + statusTasksOne + " " + tasks[i]);
             }
         }
     }
 
-    public static int addTask(
-            int counterTasks,
-            String task,
-            String[] tasks,
-            boolean[] statusTasks,
-            Scanner scanner
-    ){
-        if (counterTasks >= 100){
-            System.out.println("Уже хранится 100 задач.");
-            return counterTasks;
+    private static void addTask() {
+        String task = "";
+
+        if (counterTasks >= MAX_TASKS) {
+            System.out.println("Уже хранится " + MAX_TASKS + " задач.");
+            return;
         }
         System.out.println("Введите описание задачи:");
         task = scanner.nextLine();
@@ -80,17 +76,11 @@ public class DataTypes {
         statusTasks[counterTasks] = false;
         counterTasks++;
         System.out.println("Задача добавлена");
-        return counterTasks;
     }
 
-    public static void completeTask(
-            Scanner scanner,
-            int counterTasks,
-            boolean[] statusTasks,
-            String[] tasks
-    ){
+    private static void completeTask() {
         System.out.println("Введите номер задачи для отметки:");
-        if (!scanner.hasNextInt()){
+        if (!scanner.hasNextInt()) {
             System.out.println("Введите номер задачи числом.");
             scanner.nextLine();
             return;
@@ -100,7 +90,8 @@ public class DataTypes {
         if (taskNumber < 1 || taskNumber > counterTasks) {
             System.out.println("Некорректный номер задачи.");
             return;
-        } else if (statusTasks[taskNumber - 1] == true){
+        }
+        if (statusTasks[taskNumber - 1]) {
             System.out.println("Задача " + tasks[taskNumber - 1] + " уже выполнена!");
         } else {
             statusTasks[taskNumber - 1] = true;
@@ -108,37 +99,29 @@ public class DataTypes {
         }
     }
 
-    public static int deleteTask(
-            Scanner scanner,
-            int counterTasks,
-            String[] tasks,
-            boolean[] statusTasks
-    ){
+    private static void deleteTask() {
         System.out.println("Введите номер задачи для удаления:");
-        if (!scanner.hasNextInt()){
+        if (!scanner.hasNextInt()) {
             System.out.println("Введите номер задачи числом.");
             scanner.nextLine();
-            return counterTasks;
+            return;
         }
         int taskNumber = scanner.nextInt();
         scanner.nextLine();
-        if (taskNumber < 1 || taskNumber > counterTasks){
+        if (taskNumber < 1 || taskNumber > counterTasks) {
             System.out.println("Некорректный номер задачи.");
-            return counterTasks;
-        } else {
-            counterTasks--;
+            return;
         }
+        counterTasks--;
         System.out.println("Задача " + tasks[taskNumber - 1] + " удалена!");
-        tasks[taskNumber - 1] = null;
-        for (int i = (taskNumber - 1); i < counterTasks; i++){
-            if (tasks[i] == null && tasks[i + 1] != null){
-                tasks[i] = tasks[i + 1];
-                tasks[i + 1] = null;
-                statusTasks[i] = statusTasks[i + 1];
-                statusTasks[i + 1] = false;
-            }
+        for (int i = (taskNumber - 1); i < counterTasks; i++) {
+            tasks[i] = tasks[i + 1];
+            tasks[i + 1] = null;
+            statusTasks[i] = statusTasks[i + 1];
+            statusTasks[i + 1] = false;
         }
-        return counterTasks;
+        tasks[counterTasks] = null;
+        statusTasks[counterTasks] = false;
     }
 }
 
